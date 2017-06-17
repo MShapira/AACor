@@ -48,6 +48,10 @@ def parse_pdb_structure(protein_pdb_list, folder_path):
     parser = PDBParser(PERMISSIVE=1)
     proteins_list = []
 
+    standard_res_list = []
+    for res in genfromtxt('standard_residues.txt', dtype=None, delimiter=', '):
+        standard_res_list.append(res.decode('UTF-8'))
+
     for (dirpath, dirnames, filenames) in os.walk(folder_path):
         for pdb in protein_pdb_list:
             for pdb_file in filenames:
@@ -59,9 +63,8 @@ def parse_pdb_structure(protein_pdb_list, folder_path):
                     for model in structure:
                         for chain in model:
                             for residue in chain:
-                                for res in genfromtxt('standard_residues.txt', dtype=None, delimiter=', '):
-                                    if residue.get_resname() != res.decode('UTF-8').replace("'", ''):
-                                        protein.ligands.append(residue)
+                                if residue.get_resname() not in standard_res_list:
+                                    protein.ligands.append(residue)
                     proteins_list.append(protein)
 
     return proteins_list
@@ -77,5 +80,8 @@ def protein_clasterization_via_ligand(protein_list):
                     meta_ligand.proteins.append(protein.id)
                 else:
                     meta_ligand = Ligand(id=ligand.get_resname())
+                    meta_ligand.residue = ligand
                     meta_ligand.proteins.append(protein.id)
                     ligands_list.append(meta_ligand)
+
+    return ligands_list

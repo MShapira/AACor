@@ -1,1 +1,1 @@
-'MET', 'VAL', 'LEU', 'SER', 'GLU', 'GLY', 'TRP', 'GLN', 'HIS', 'ALA', 'LYS', 'ASP', 'ILE', 'ARG', 'PHE', 'PRO', 'THR', 'TYR', 'ASN', 'HOH'
+MET, VAL, LEU, SER, GLU, GLY, TRP, GLN, HIS, ALA, LYS, ASP, ILE, ARG, PHE, PRO, THR, TYR, ASN, HOH
