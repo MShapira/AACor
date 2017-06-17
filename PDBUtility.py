@@ -44,7 +44,7 @@ def extract_sequence(file_name):
     return seq
 
 
-def parse_pdb_structure(protein_pdb_list, folder_path):
+def construct_proteins_list(protein_pdb_list, folder_path):
     parser = PDBParser(PERMISSIVE=1)
     proteins_list = []
 
@@ -70,7 +70,8 @@ def parse_pdb_structure(protein_pdb_list, folder_path):
     return proteins_list
 
 
-def protein_clasterization_via_ligand(protein_list):
+# protein clasterization via ligand type
+def construct_ligands_list(protein_list):
     ligands_list = []
     for protein in protein_list:
         if len(protein.ligands) != 0:
