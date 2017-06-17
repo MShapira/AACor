@@ -1,18 +1,19 @@
 import pypdb
 import os
 import time
-from utility import write_to_file
+from utility import write_to_file, find_ligand_with_id
 from Bio.PDB import PDBParser
 from protein import Protein
 from ligand import Ligand
 from Bio import SeqIO
+from numpy import genfromtxt
 
 
 def get_pdbs_with_ligands_list():
     pdb_list_query = pypdb.make_query('Ligand', querytype='AdvancedKeywordQuery')
     pdb_list = pypdb.do_search(pdb_list_query)
     protein_pdb_list = []
-    for pdb in pdb_list:
+    for pdb in pdb_list[:10]:
         if isinstance(pypdb.get_all_info(pdb)['polymer'], list):
             if pypdb.get_all_info(pdb)['polymer'][0]['@type'] == 'protein':
                 protein_pdb_list.append(pdb)
@@ -23,7 +24,7 @@ def get_pdbs_with_ligands_list():
     folder_path = 'results/' + str(time.ctime()).replace(':', '-').replace(' ', '_')
     os.makedirs(folder_path)
 
-    for pdb in protein_pdb_list[:15]:
+    for pdb in protein_pdb_list:
         pdb_structure = pypdb.get_pdb_file(pdb, filetype='pdb', compression=False)
 
         write_to_file(str(pdb), "pdb", pdb_structure, folder_path)
@@ -53,21 +54,28 @@ def parse_pdb_structure(protein_pdb_list, folder_path):
                 if pdb in pdb_file:
                     protein = Protein(id=pdb)
                     protein.sequence = str(extract_sequence(folder_path + '/' + pdb_file))
-                    protein.name = pypdb.get_all_info(pdb)['polymer']['chain']['macroMolecule']['@name']
+                    protein.name = pypdb.get_all_info(pdb)['polymer']['macroMolecule']['@name']
                     structure = parser.get_structure('', folder_path + '/' + pdb_file)
                     for model in structure:
                         for chain in model:
                             for residue in chain:
-                                if str(residue).split(' ')[2] != 'het=W' and str(residue).split(' ')[2] != 'het=':
-                                    protein.ligands.append(residue)
+                                for res in genfromtxt('standard_residues.txt', dtype=None, delimiter=', '):
+                                    if residue.get_resname() != res.decode('UTF-8').replace("'", ''):
+                                        protein.ligands.append(residue)
                     proteins_list.append(protein)
 
     return proteins_list
 
 
-def protein_clasterization_via_lignad(protein_list):
-    ligands =
+def protein_clasterization_via_ligand(protein_list):
+    ligands_list = []
     for protein in protein_list:
         if len(protein.ligands) != 0:
             for ligand in protein.ligands:
-                if find_ligand_with_id()
+                meta_ligand = find_ligand_with_id(ligands_list, ligand.get_resname())
+                if meta_ligand is not None:
+                    meta_ligand.proteins.append(protein.id)
+                else:
+                    meta_ligand = Ligand(id=ligand.get_resname())
+                    meta_ligand.proteins.append(protein.id)
+                    ligands_list.append(meta_ligand)
