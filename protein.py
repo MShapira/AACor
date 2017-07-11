@@ -1,9 +1,10 @@
 class Protein:
-    def __init__(self, id, name=None, sequence=None):
+    def __init__(self, id, name=None, sequence=None, structure=None):
         self.id = id
         self.name = name
         self.sequence = sequence
         self.ligands = []
+        self.structure = structure
 
     def __str__(self):
         return '  ID: ' + self.id + '\n' + \
